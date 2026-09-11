@@ -20,6 +20,12 @@ public final class UserSettings {
     public var calendarEnabled: Bool
     public var watchCompanionEnabled: Bool
     public var liveActivityEnabled: Bool
+    /// Ritüel hatırlatıcı bildirimi açık mı (Bölüm 4.8).
+    public var reminderEnabled: Bool
+    /// Hatırlatıcının çalacağı saat/dakika (yıl/ay/gün önemsiz, `UNCalendarNotificationTrigger`
+    /// yalnızca `.hour`/`.minute` bileşenlerini okuyacak). Onboarding'de
+    /// `RitualReminderCalculator.defaultReminderTime` ile önerilir, kullanıcı değiştirebilir.
+    public var reminderTime: Date
 
     public init(targetTimeDefault: Date) {
         self.targetTimeDefault = targetTimeDefault
@@ -36,5 +42,7 @@ public final class UserSettings {
         self.calendarEnabled = false
         self.watchCompanionEnabled = false
         self.liveActivityEnabled = true
+        self.reminderEnabled = true
+        self.reminderTime = RitualReminderCalculator.defaultReminderTime(forTarget: targetTimeDefault)
     }
 }

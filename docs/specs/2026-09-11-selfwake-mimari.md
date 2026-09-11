@@ -161,6 +161,8 @@ final class UserSettings {
     var calendarEnabled: Bool           // EventKit okuma izni verildi mi
     var watchCompanionEnabled: Bool     // eşleşmiş Watch üzerinden titreşim
     var liveActivityEnabled: Bool       // varsayılan true, kullanıcı kapatabilir
+    var reminderEnabled: Bool           // Bölüm 4.8, varsayılan true
+    var reminderTime: Date              // yalnız saat/dakika okunur
 }
 ```
 
@@ -189,7 +191,10 @@ olması için).
 Selfwake/
   App/
     SelfwakeApp.swift              — @main, SwiftData ModelContainer (App Group)
-    AppRouter.swift                 — hangi ekranın açılacağını karar veren state machine
+    RootView.swift                  — UserSettings var mı bakar; yoksa oluşturur,
+                                       onboardingCompleted'a göre Onboarding/Bugün seçer
+  Home/
+    TodayView.swift                 — hedef saat, seri, "Gece Ritüelini Başlat"
   Models/
     Night.swift, ReactionTest.swift, UserSettings.swift
   Persistence/
@@ -251,11 +256,17 @@ Selfwake/
   Subscription/
     StoreKitManager.swift
     PaywallView.swift
-  Onboarding/
-    WelcomeView.swift
-    ScienceView.swift               — kaynakçalı "nasıl çalışır"
-    HonestyDisclosureView.swift
-    PermissionsOnboardingView.swift — AlarmKit, HealthKit, EventKit, Watch eşleştirme
+  Onboarding/                       — sıra OnboardingCoordinator'da (SelfwakeCore), 7 adım
+    OnboardingFlowView.swift        — adıma göre ekranı seçer, geri/devam düğmeleri
+    WelcomeStep.swift                — vaat birebir
+    HowItWorksStep.swift            — dört maddelik döngü
+    ScienceStep.swift               — kaynakçalı bilimsel temel
+    HonestyStep.swift
+    PermissionsStep.swift           — Alarm, Bildirim, Sağlık (opsiyonel)
+    ReminderSetupStep.swift         — Bölüm 4.8, saat/dakika seçimi
+    TargetTimeSetupStep.swift
+  Reminders/                        — RitualReminderCalculator + NotificationScheduling SelfwakeCore'da
+    (app tarafında ek View yok; Ayarlar'daki aç/kapat SettingsView'a dahil)
   Settings/
     SettingsView.swift
     ThemeManager.swift
@@ -369,15 +380,53 @@ kendi kelimesini yazabilir, alan asla otomatik doldurulup kilitlenmez.
 İzin reddedilirse ya da etkinlik yoksa Adım 3 bugünkü gibi boş başlar.
 Bu veri aynı zamanda Bölüm 8'deki niyet cümlesi üretimine girdi olur.
 
+### 4.8 Hatırlatıcı bildirimi
+
+Güvenlik ağı (Bölüm 4.2) *reaktif* — yalnızca hedef saatte, erken
+uyanılmadıysa çalar. Hatırlatıcı bundan tamamen ayrı ve **proaktif**: her
+gece aynı saatte tekrarlayan yerel bir bildirimle "ritüele başlama
+vakti" hatırlatır. Sunucu gerektirmez, push değil — yalnızca
+`UNUserNotificationCenter` yerel bildirimi.
+
+- `RitualReminderCalculator.defaultReminderTime` varsayılanı önerir
+  (hedef saatten 8 saat önce, tipik uyku süresi); onboarding'de
+  (Bölüm 5, adım 6) kullanıcı bunu elle değiştirebilir, `UserSettings.
+  reminderTime`'da saklanır.
+- `NotificationScheduling` protokolü (SelfwakeCore) ile
+  `UNRitualReminderScheduler` gerçek uygulaması, `AlarmScheduling`
+  ayrımıyla aynı gerekçeyle ayrılmış: framework çağrıları izole, geri
+  kalan kod etkilenmez.
+- Bildirim gövdesi o geceki hedef saati gösterir ("Bu gece 07:00
+  hedefliyorsun. İki dakikanı ayır.") — jenerik bir metin değil.
+- `UserSettings.reminderEnabled` (varsayılan `true`) Ayarlar'dan
+  kapatılabilir; kapatılınca `cancelReminder()` çağrılır, hedef saat
+  değiştiğinde de gövde metni güncellenmek üzere yeniden kurulur.
+- Bu bildirim güvenlik ağının **yedeği değil** — ağ hatırlatıcıdan
+  bağımsız olarak her zaman kurulur (Bölüm 4.2, "tamamen kapatılamaz").
+
 ---
 
 ## 5. Ekran akışı (uçtan uca)
 
-1. **Onboarding** (yalnız ilk açılış)
-   Karşılama/vaat → Bilimsel temel özeti (kaynakça `ScienceView`'da) →
-   Dürüstlük uyarısı (herkes yapamaz, düzensiz hedef uykuyu bozar) →
-   İzinler (AlarmKit zorunlu, HealthKit opsiyonel/atlanabilir) →
-   İlk hedef saat seçimi → Ana Ekran.
+1. **Onboarding** (yalnız ilk açılış — `OnboardingCoordinator`, 7 adım,
+   geri gidilebilir; Ritüel'in aksine burada "geri" var çünkü uyarıyı ya
+   da bilimsel temeli tekrar okumak isteyen biri engellenmemeli)
+   1. **Karşılama** — vaat birebir: *"Sabahları yorgun uyanmayın. Alarm
+      kurmayı bırakın — beyninizde çalan sese güvenin."* + tek cümlelik
+      amaç: kendini gereksiz kılmak.
+   2. **Nasıl çalışır** — dört maddelik döngü: Gece (niyet ritüeli) →
+      Güvenlik ağı (erken uyanırsan çalmaz) → Sabah (tepki testi) →
+      Zamanla (ağ geri çekilir).
+   3. **Bilimsel temel** — kaynakçalı özet (Born ve ark. 1999; Ikeda &
+      Hayashi 2014).
+   4. **Dürüstlük uyarısı** — herkes yapamaz, düzensiz hedef uykuyu bozar.
+   5. **İzinler** — Alarm (zorunlu), Bildirim (hatırlatıcı için, Bölüm
+      4.8), Sağlık (opsiyonel, Ayarlar'a ertelenebilir).
+   6. **Ritüel hatırlatıcısı** — saat/dakika seçimi,
+      `RitualReminderCalculator.defaultReminderTime` (hedeften 8 saat
+      önce) öneriyle başlar.
+   7. **İlk hedef saat** — "Selfwake'i başlat" ile `onboardingCompleted`
+      `true` olur, hatırlatıcı kurulur, Ana Ekran'a geçilir.
 
 2. **Ana Ekran (Bugün)**
    Bu geceki hedef saat, seri sayısı, "Gece Ritüelini Başlat" (akşam
@@ -542,6 +591,25 @@ derleneceğini onayladı ve Apple hesabına eriştim (`akokdogan59` →
 bağlı işlemler, tarayıcıdan yapılabilir ama Codemagic panelinin kendi
 "Generate certificate" / "Fetch profiles" akışını gerektiriyor. Ardından
 ilk `ios-testflight` derlemesi tetiklenip gerçek sonuç görülecek.
+
+**Güncelleme (11 Eylül 2026, gece):** Kullanıcı derlemeden önce tarayıcıda
+bir arayüz önizlemesi istedi (Codemagic henüz tetiklenmedi); Gece Ritüeli
+ve Sabah akışının gerçek Swift metinlerini/zamanlamalarını yansıtan
+statik bir HTML taslağı ayrı bir Artifact olarak yayınlandı (bu depoda
+değil — yalnızca inceleme için). Ardından **Onboarding ve Hatırlatıcı**
+alt sistemleri tam olarak kodlandı:
+
+- `OnboardingCoordinator` (SelfwakeCore, geri gidilebilir 7 adım) +
+  yedi View (`WelcomeStep`'te vaat birebir metin).
+- `RitualReminderCalculator` + `NotificationScheduling` protokolü +
+  gerçek `UNRitualReminderScheduler` uygulaması (Bölüm 4.8) —
+  `AlarmScheduling` ile aynı izolasyon deseni.
+- `UserSettings`'e `reminderEnabled`/`reminderTime` eklendi.
+- `RootView` yazıldı: ilk açılışta `UserSettings` yoksa oluşturuyor,
+  `onboardingCompleted`'a göre Onboarding ya da Bugün'ü gösteriyor.
+
+Hâlâ hiçbir test bu makinede çalıştırılmadı; hâlâ ilk gerçek doğrulama
+Codemagic'i bekliyor.
 
 Bu belge **tek bir mimari onayı** için yazıldı; gerçek implementasyon
 planı burada değil. `writing-plans` becerisinin "Scope Check" kuralı

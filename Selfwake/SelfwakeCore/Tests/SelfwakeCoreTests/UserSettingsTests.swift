@@ -20,5 +20,13 @@ struct UserSettingsTests {
         #expect(settings.calendarEnabled == false)
         #expect(settings.watchCompanionEnabled == false)
         #expect(settings.liveActivityEnabled == true)
+        #expect(settings.reminderEnabled == true)
+    }
+
+    @Test("Hatırlatıcı varsayılanı hedeften 8 saat önceye kurulur")
+    func reminderDefaultsToTargetMinusEightHours() {
+        let target = Date(timeIntervalSince1970: 500_000)
+        let settings = UserSettings(targetTimeDefault: target)
+        #expect(settings.reminderTime == target.addingTimeInterval(-8 * 3600))
     }
 }

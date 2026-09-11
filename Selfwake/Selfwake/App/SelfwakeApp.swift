@@ -8,7 +8,7 @@ struct SelfwakeApp: App {
 
     var body: some Scene {
         WindowGroup {
-            TodayView()
+            RootView()
         }
         .modelContainer(modelContainer)
     }
