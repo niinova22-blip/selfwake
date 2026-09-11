@@ -416,7 +416,11 @@ vakti" hatırlatır. Sunucu gerektirmez, push değil — yalnızca
       amaç: kendini gereksiz kılmak.
    2. **Nasıl çalışır** — dört maddelik döngü: Gece (niyet ritüeli) →
       Güvenlik ağı (erken uyanırsan çalmaz) → Sabah (tepki testi) →
-      Zamanla (ağ geri çekilir).
+      Zamanla (güvenlik ağı geri çekilir). "Ağ" burada **internet**
+      değil, sirk cambazının altındaki **emniyet ağı** — seni
+      alarmsız uyanma başarısız olursa yakalayan yedek. Kısaltılmış
+      "ağ" hiçbir kullanıcı metninde tek başına geçmez; her zaman
+      "güvenlik ağı" olarak yazılır (bkz. Bölüm 4.2).
    3. **Bilimsel temel** — kaynakçalı özet (Born ve ark. 1999; Ikeda &
       Hayashi 2014).
    4. **Dürüstlük uyarısı** — herkes yapamaz, düzensiz hedef uykuyu bozar.

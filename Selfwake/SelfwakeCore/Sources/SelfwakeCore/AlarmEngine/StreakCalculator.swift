@@ -1,6 +1,6 @@
 import Foundation
 
-/// Spec Bölüm 4.4'teki kademeli geri çekilme: başarı arttıkça ağ hedef
+/// Spec Bölüm 4.4'teki kademeli geri çekilme: başarı arttıkça güvenlik ağı hedef
 /// saatten daha geç çalar ve daha kısık sesle çalar; asla tamamen susmaz
 /// (Bölüm 4.2, "tamamen kapatılamaz").
 public enum StreakTier: Int, CaseIterable {

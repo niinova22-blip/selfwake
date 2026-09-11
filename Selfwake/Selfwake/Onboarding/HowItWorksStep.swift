@@ -5,7 +5,7 @@ struct HowItWorksStep: View {
         ("Gece", "Hedef saati seç, kısa bir niyet ritüeli yap."),
         ("Güvenlik ağı", "Hedeften önce uyanırsan hiç çalmaz."),
         ("Sabah", "30 saniyelik tepki testiyle uyanıklığını ölç."),
-        ("Zamanla", "Başarı arttıkça ağ geriye çekilir, sesi kısılır."),
+        ("Zamanla", "Başarı arttıkça güvenlik ağı geriye çekilir, sesi kısılır."),
     ]
 
     var body: some View {

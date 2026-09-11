@@ -7,7 +7,7 @@ public enum OnboardingStep: Int, CaseIterable {
     /// Vaat: "Sabahları yorgun uyanmayın. Alarm kurmayı bırakın — beyninizde
     /// çalan sese güvenin."
     case welcome
-    /// Dört adımlık akışın düz Türkçe özeti (gece → ağ → sabah → geri çekilme).
+    /// Dört adımlık akışın düz Türkçe özeti (gece → güvenlik ağı → sabah → geri çekilme).
     case howItWorks
     /// Kaynakçalı bilimsel temel (Born ve ark. 1999; Ikeda & Hayashi 2014).
     case science

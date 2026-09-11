@@ -2,7 +2,7 @@ import Foundation
 
 /// AlarmKit'e hiç bağımlı değil — "ne zaman kur, ne zaman iptal et" kararı
 /// saf mantık olarak burada, framework çağrıları `AlarmScheduler`'da.
-/// Bölüm 4.2: kullanıcı hedef saatten önce uygulamayı açarsa ağ hiç çalmaz.
+/// Bölüm 4.2: kullanıcı hedef saatten önce uygulamayı açarsa güvenlik ağı hiç çalmaz.
 public enum AlarmSchedulingDecision {
     /// `now`, `targetTime`'dan önceyse ve kullanıcı henüz uyanmamışsa
     /// (yani uygulamayı hedef saatten önce açtıysa) alarm iptal edilmeli.
