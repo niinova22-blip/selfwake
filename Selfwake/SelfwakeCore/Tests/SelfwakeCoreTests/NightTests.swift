@@ -43,4 +43,17 @@ struct NightTests {
         #expect(night.deviationMinutes == nil)
         #expect(night.isSuccess == nil)
     }
+
+    @Test("firstActionWord ve freeNote birbirinden bağımsız saklanır")
+    func firstActionWordIndependentFromFreeNote() {
+        let target = Date(timeIntervalSince1970: 0)
+        let night = Night(
+            date: target,
+            targetTime: target,
+            firstActionWord: "su",
+            freeNote: "dün gece huzursuzdum"
+        )
+        #expect(night.firstActionWord == "su")
+        #expect(night.freeNote == "dün gece huzursuzdum")
+    }
 }

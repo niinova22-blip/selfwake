@@ -12,6 +12,10 @@ public final class Night {
     public var isBlindTest: Bool
     public var isBlindDecoy: Bool
     public var intentSentence: String?
+    /// Gece Ritüeli Adım 3: "uyanınca ilk yapacağın şeyi tek kelimeyle yaz".
+    /// `freeNote`'tan ayrı — o daha sonra (sabah ya da gündüz) serbestçe
+    /// eklenen bir not, bu ise ritüelin kendi üçüncü adımının girdisi.
+    public var firstActionWord: String?
     public var freeNote: String?
 
     public init(
@@ -24,6 +28,7 @@ public final class Night {
         isBlindTest: Bool = false,
         isBlindDecoy: Bool = false,
         intentSentence: String? = nil,
+        firstActionWord: String? = nil,
         freeNote: String? = nil
     ) {
         self.id = id
@@ -35,6 +40,7 @@ public final class Night {
         self.isBlindTest = isBlindTest
         self.isBlindDecoy = isBlindDecoy
         self.intentSentence = intentSentence
+        self.firstActionWord = firstActionWord
         self.freeNote = freeNote
     }
 

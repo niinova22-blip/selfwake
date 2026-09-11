@@ -96,6 +96,7 @@ final class Night {
     var isBlindTest: Bool               // bu gece kör test kapsamında mı
     var isBlindDecoy: Bool              // kör testin "sahte" (boş bekleme) gecesi mi
     var intentSentence: String?         // AI ya da kural tabanlı niyet cümlesi
+    var firstActionWord: String?        // Adım 3: uyanınca ilk yapılacak şey (tek kelime)
     var freeNote: String?               // kullanıcının serbest notu
 
     var deviationMinutes: Double? {     // actualWakeTime - targetTime, dakika
@@ -151,6 +152,14 @@ olması için).
 
 ## 4. Dosya yapısı
 
+> **Uygulama notu (Temel alt sisteminden itibaren):** UI'sız, test edilebilir
+> her şey (`Models/`, `Persistence/`, `AlarmEngine/` içindeki saf mantık,
+> `NightRitual/`'ın state machine'i) gerçekte ayrı bir SPM paketinde —
+> `Selfwake/SelfwakeCore/Sources/SelfwakeCore/<aşağıdaki yol>`. Aşağıdaki
+> ağaç mantıksal grupları gösteriyor; SwiftUI View'lar (`NightRitual/*View.swift`
+> gibi) yine ana uygulama hedefinde kalıyor ve `import SelfwakeCore` ile bu
+> pakete bağlanıyor.
+
 ```
 Selfwake/
   App/
@@ -163,13 +172,13 @@ Selfwake/
   AlarmEngine/
     AlarmScheduler.swift            — AlarmKit sarmalayıcı
     AlarmPermissionManager.swift
+    AlarmSchedulingDecision.swift   — SelfwakeCore'da: erken uyanma/çalma saati, saf mantık
     StreakCalculator.swift          — offset/ses kademesi hesaplayan saf mantık
-  NightRitual/
-    RitualCoordinator.swift         — 3 adımlık akışın state machine'i
+  NightRitual/                      — state machine SelfwakeCore'da (bkz. aşağı), View'lar burada
     TargetTimeConfirmView.swift
     IntentStep1View.swift           — saati söyle
     IntentStep2View.swift           — 5 saniyelik canlandırma + opsiyonel nefes sesi
-    IntentStep3View.swift           — tek kelime
+    IntentStep3View.swift           — tek kelime, RitualCoordinator.setFirstActionWord çağırır
     RitualFadeOutView.swift         — Bölüm 4.3'teki kararma ekranı
     BreathSoundPlayer.swift         — Adım 2'nin isteğe bağlı sesi, varsayılan kapalı
   BlindTest/
@@ -460,13 +469,19 @@ kuralına uyar; View katmanı hangi üreticinin AI mı kural tabanlı mı
 
 ## 9. Kapsam bölünmesi — sıradaki adım
 
-**Durum (11 Eylül 2026):** Temel alt sistemi (`SelfwakeCore` paketi —
-Night, ReactionTest, UserSettings, StreakCalculator, SwiftDataContainer)
-koda döküldü (`Selfwake/SelfwakeCore/`, plan:
-`docs/superpowers/plans/2026-09-11-temel-alt-sistem.md`); hiçbir test bu
-makinede çalıştırılmadı (Swift toolchain yok). İlk doğrulama, paket bir
-Xcode projesine bağlanıp Codemagic'te derlendiğinde yapılacak. Sıradaki
-alt sistem: **AlarmEngine**.
+**Durum (11 Eylül 2026):** Temel (Night, ReactionTest, UserSettings,
+StreakCalculator, SwiftDataContainer), AlarmEngine (AlarmScheduler,
+AlarmPermissionManager, AlarmSchedulingDecision — AlarmKit API'si
+topluluk kaynaklarıyla doğrulandı, Bölüm 2 güncellendi) ve Gece Ritüeli'nin
+state machine çekirdeği (RitualState, RitualCoordinator, RitualCompletion)
+koda döküldü, hepsi `SelfwakeCore` paketinde. Bu sırada `Night` modeline
+eksik olan `firstActionWord` alanı eklendi (Bölüm 3 güncel). Gece
+Ritüeli'nin SwiftUI View'ları (`TargetTimeConfirmView` vb.) henüz
+yazılmadı — Xcode/SwiftUI önizlemesi olmadan tasarım kalitesi
+doğrulanamayacağı için bilinçli olarak ertelendi. Hiçbir test bu
+makinede çalıştırılmadı (Swift toolchain yok); ilk doğrulama paket bir
+Xcode projesine bağlanıp Codemagic'te derlendiğinde yapılacak. Sıradaki:
+Gece Ritüeli View'ları ya da **Sabah akışı**.
 
 Bu belge **tek bir mimari onayı** için yazıldı; gerçek implementasyon
 planı burada değil. `writing-plans` becerisinin "Scope Check" kuralı
