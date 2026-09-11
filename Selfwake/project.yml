@@ -1,0 +1,100 @@
+name: Selfwake
+options:
+  bundleIdPrefix: com.selfwake
+  deploymentTarget:
+    iOS: "26.0"
+    watchOS: "26.0"
+  developmentLanguage: tr
+
+packages:
+  SelfwakeCore:
+    path: SelfwakeCore
+
+targets:
+  Selfwake:
+    type: application
+    platform: iOS
+    sources:
+      - path: Selfwake
+    dependencies:
+      - package: SelfwakeCore
+      - target: SelfwakeWidgetExtension
+        embed: true
+      - target: SelfwakeWatchApp
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.selfwake.app
+        PRODUCT_NAME: Selfwake
+        DEVELOPMENT_TEAM: ML3UZXMU3D
+        CODE_SIGN_ENTITLEMENTS: Selfwake/Selfwake.entitlements
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "6.0"
+        TARGETED_DEVICE_FAMILY: "1"
+        SUPPORTS_MACCATALYST: false
+    info:
+      path: Selfwake/Info.plist
+      properties:
+        CFBundleDisplayName: Selfwake
+        UILaunchScreen: {}
+        NSAlarmKitUsageDescription: "Selfwake, güvenlik ağını hedef saatte çalabilmek için alarm izni ister. Alarm yalnızca sen erken uyanmazsan çalar."
+        NSHealthShareUsageDescription: "Selfwake, isteğe bağlı olarak uyku ve nabız verini okuyup ölçümlerini zenginleştirir. Veri yalnızca cihazında kalır."
+        NSUserTrackingUsageDescription: "Selfwake reklam göstermez; bu izin kullanılmaz."
+        NSSupportsLiveActivities: true
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+
+  SelfwakeWidgetExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: SelfwakeWidgetExtension
+    dependencies:
+      - package: SelfwakeCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.selfwake.app.SelfwakeWidget
+        PRODUCT_NAME: SelfwakeWidgetExtension
+        DEVELOPMENT_TEAM: ML3UZXMU3D
+        CODE_SIGN_ENTITLEMENTS: SelfwakeWidgetExtension/SelfwakeWidgetExtension.entitlements
+        SWIFT_VERSION: "6.0"
+        SKIP_INSTALL: true
+    info:
+      path: SelfwakeWidgetExtension/Info.plist
+      properties:
+        CFBundleDisplayName: Selfwake Widget
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+
+  SelfwakeWatchApp:
+    type: application
+    platform: watchOS
+    sources:
+      - path: SelfwakeWatchApp
+    dependencies:
+      - package: SelfwakeCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.selfwake.app.watchkitapp
+        PRODUCT_NAME: SelfwakeWatchApp
+        DEVELOPMENT_TEAM: ML3UZXMU3D
+        CODE_SIGN_ENTITLEMENTS: SelfwakeWatchApp/SelfwakeWatchApp.entitlements
+        SWIFT_VERSION: "6.0"
+        SKIP_INSTALL: true
+        WKCompanionAppBundleIdentifier: com.selfwake.app
+        WKApplication: true
+    info:
+      path: SelfwakeWatchApp/Info.plist
+      properties:
+        CFBundleDisplayName: Selfwake
+
+schemes:
+  Selfwake:
+    build:
+      targets:
+        Selfwake: all
+    run:
+      config: Debug
+    archive:
+      config: Release

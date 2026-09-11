@@ -6,3 +6,9 @@ build/
 *.log
 .DS_Store
 .claude/settings.local.json
+
+# Selfwake — XcodeGen'den üretiliyor, depoda tutulmuyor (bkz. Selfwake/codemagic.yaml)
+Selfwake/*.xcodeproj/
+Selfwake/.build/
+Selfwake/SelfwakeCore/.build/
+Selfwake/DerivedData/

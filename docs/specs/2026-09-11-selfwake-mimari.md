@@ -36,6 +36,31 @@ olması nedeniyle Flutter/React Native elenir).
 **Sunucu yok, hesap yok, giriş yok.** Tüm veri cihazda; App Group yalnızca
 ana uygulama ↔ widget extension arasında SwiftData deposunu paylaşmak için.
 
+### 1.1 Apple hesabı tarafında hazır olanlar (11 Eylül 2026)
+
+Plasebo ile aynı takım (`Rahile KÖKDOĞAN`, `ML3UZXMU3D`) üzerinde kuruldu —
+ayrı bir Apple Developer üyeliği gerekmedi.
+
+| Ne | Değer |
+| --- | --- |
+| Ana uygulama App ID | `com.selfwake.app` — App Groups + HealthKit açık |
+| Widget App ID | `com.selfwake.app.SelfwakeWidget` — App Groups açık |
+| Watch App ID | `com.selfwake.app.watchkitapp` — App Groups açık |
+| App Group | `group.com.selfwake.app` — üç App ID'ye de bağlandı |
+| App Store Connect uygulaması | **Selfwake**, Apple ID `6811170233`, durum "Prepare for Submission" |
+| SKU | `selfwake-ios-1` |
+| Birincil dil (App Store Connect) | Türkçe |
+
+**AlarmKit için App ID'de ayrı bir capability yok** — geliştirici
+portalının "Capabilities" ve "App Services" listelerinde "Alarm" araması
+sonuç vermedi; framework'ün Xcode'da yalnızca `import AlarmKit` ve
+`NSAlarmKitUsageDescription` ile çalıştığı anlaşılıyor. Codemagic'te ilk
+derlemede bu doğrulanacak.
+
+**Yapılmayanlar:** TestFlight Test Bilgisi, abonelik ürünleri,
+Codemagic bağlantısı — bunlar Xcode projesi (Bölüm 1.2) hazır olduktan
+sonra sırayla yapılacak.
+
 ---
 
 ## 2. Açık teknik riskler (kodlamadan önce doğrulanmalı)
@@ -486,6 +511,37 @@ Codemagic'te derlendiğinde yapılacak. Kalan alt sistemler (Widgets, Live
 Activity, Intelligence, HealthKit, Takvim, Siri, Watch, Abonelik,
 Onboarding/Ayarlar/Tema) framework-ağırlıklı; bunlara geçmeden önce bir
 Codemagic doğrulama turu öneriliyor.
+
+**Güncelleme (11 Eylül 2026, akşam):** Kullanıcı Codemagic üzerinden
+derleneceğini onayladı ve Apple hesabına eriştim (`akokdogan59` →
+`ML3UZXMU3D` takımı, Plasebo ile aynı). Yapılanlar:
+
+- Üç App ID kaydedildi ve App Group'a bağlandı (Bölüm 1.1).
+- App Store Connect'te **Selfwake** uygulaması oluşturuldu (Apple ID
+  `6811170233`).
+- `Selfwake/project.yml` — XcodeGen spesifikasyonu, üç hedef
+  (uygulama + widget extension + watchOS companion), `SelfwakeCore`'a
+  yerel paket bağımlılığı.
+- Üç `.entitlements` dosyası (App Group hepsinde, HealthKit yalnız ana
+  uygulamada).
+- İlk buildable View katmanı: `TodayView`, `RitualFlowView` +
+  `VisualizeBreathView` (Gece Ritüeli'nin dört adımı,
+  `RitualCoordinator`'ı sarıyor), `ReactionTestFlowView` (Sabah PVT-lite,
+  `ReactionTestSession`'ı sarıyor). Widget ve Watch hedefleri şimdilik
+  yer tutucu (`SelfwakeWidgetBundle`, minimal `SelfwakeWatchApp`) —
+  derlemenin uçtan uca geçmesi için var, gerçek içerikleri kendi
+  alt sistem sıraları geldiğinde yazılacak.
+- `Selfwake/codemagic.yaml` — Plasebo'nunkiyle aynı desen
+  (`app_store_connect` entegrasyonu, TestFlight derleme numarası
+  otomasyonu), tek fark `expo prebuild` yerine `xcodegen generate`.
+
+**Kalan (kullanıcı tarafında):** Codemagic panelinde
+`selfwake-distribution` sertifikası ve üç provisioning profili
+(`selfwake-appstore`, `selfwake-widget-appstore`,
+`selfwake-watchapp-appstore`) oluşturulmalı — bunlar Apple hesabına
+bağlı işlemler, tarayıcıdan yapılabilir ama Codemagic panelinin kendi
+"Generate certificate" / "Fetch profiles" akışını gerektiriyor. Ardından
+ilk `ios-testflight` derlemesi tetiklenip gerçek sonuç görülecek.
 
 Bu belge **tek bir mimari onayı** için yazıldı; gerçek implementasyon
 planı burada değil. `writing-plans` becerisinin "Scope Check" kuralı

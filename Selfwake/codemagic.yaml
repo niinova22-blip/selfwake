@@ -1,0 +1,112 @@
+# Selfwake — iOS derlemesi ve TestFlight yüklemesi (Codemagic)
+#
+# NEDEN CODEMAGIC
+#
+# Geliştirme Windows'ta yapılıyor, iOS derlemesi bir Mac istiyor. Aynı
+# yaklaşım Plasebo'da kullanıldı (bkz. D:\Plasebo\codemagic.yaml); buradaki
+# tek fark Expo/React Native değil saf SwiftUI olması — "prebuild" yerine
+# proje her derlemede XcodeGen ile `project.yml`den üretiliyor.
+#
+# NEDEN XCODEGEN
+#
+# `.xcodeproj` elle düzenlenemeyecek kadar karmaşık bir XML/plist yapısı;
+# Windows'ta Xcode olmadan onu elle tutarlı tutmak güvenilir değil.
+# `project.yml` düz metin, depoda duruyor, her derlemede aynı sonucu
+# üretir. `.xcodeproj` bilerek depoya eklenmiyor (`.gitignore`).
+#
+# ÜÇ HEDEF, ÜÇ BUNDLE ID
+#
+#   com.selfwake.app                  — ana uygulama
+#   com.selfwake.app.SelfwakeWidget   — widget extension
+#   com.selfwake.app.watchkitapp      — watchOS companion
+#
+# Üçü de App Store Connect'te tek "Selfwake" kaydına (Apple ID 6811170233)
+# bağlı; her biri kendi provisioning profiline ihtiyaç duyuyor.
+#
+# KURULUM (Codemagic panelinde, ilk derlemeden önce)
+#
+#   1. App Store Connect API anahtarı — Plasebo'dakiyle aynı "Codemagic"
+#      entegrasyonu kullanılabilir (aynı takım, ML3UZXMU3D).
+#   2. Settings → Code signing identities → iOS certificates →
+#      "Generate certificate" ile `selfwake-distribution`.
+#   3. iOS provisioning profiles → "Fetch profiles" ile üç profil:
+#      `selfwake-appstore`, `selfwake-widget-appstore`,
+#      `selfwake-watchapp-appstore`. Bunlar Apple Developer portalında
+#      App Store Connect Generated profilleri karşılığı; App ID'ler zaten
+#      kayıtlı (bkz. docs/specs/2026-09-11-selfwake-mimari.md Bölüm 1.1).
+
+workflows:
+  ios-testflight:
+    name: Selfwake iOS · TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+
+    integrations:
+      app_store_connect: Codemagic
+
+    environment:
+      ios_signing:
+        provisioning_profiles:
+          - selfwake-appstore
+          - selfwake-widget-appstore
+          - selfwake-watchapp-appstore
+        certificates:
+          - selfwake-distribution
+      vars:
+        XCODE_PROJECT: "Selfwake.xcodeproj"
+        XCODE_SCHEME: "Selfwake"
+        APP_STORE_APP_ID: 6811170233
+        APPLE_TEAM_ID: ML3UZXMU3D
+      xcode: latest
+
+    scripts:
+      - name: XcodeGen kur
+        script: |
+          set -e
+          brew install xcodegen
+
+      - name: Projeyi üret
+        # project.yml'den .xcodeproj üretiliyor; SelfwakeCore paketi
+        # `packages:` altında yerel yol olarak tanımlı, ayrı bir adım
+        # gerekmiyor (Xcode derleme sırasında kendisi çözümlüyor).
+        script: |
+          set -e
+          xcodegen generate --spec project.yml
+
+      - name: Profilleri Xcode projesine bağla
+        script: |
+          set -e
+          xcode-project use-profiles --project "$XCODE_PROJECT"
+
+      - name: Derleme numarasını TestFlight'tan al
+        script: |
+          set -e
+          latest=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APP_ID" 2>/dev/null || echo "0")
+          case "$latest" in
+            ''|*[!0-9]*) latest=0 ;;
+          esac
+          next=$((latest + 1))
+          echo "TestFlight'taki son derleme: $latest -> bu derleme: $next"
+          find . -name Info.plist -path "*/build/*" -prune -o -name Info.plist -print | while read -r f; do
+            /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $next" "$f" 2>/dev/null || true
+          done
+          # project.yml'deki CURRENT_PROJECT_VERSION de agvtool ile eşitleniyor.
+          agvtool new-version -all "$next" || true
+
+      - name: IPA üret
+        script: |
+          set -e
+          echo "--- Şemalar ---"
+          xcodebuild -list -project "$XCODE_PROJECT" || true
+          echo "---------------"
+          xcode-project build-ipa --project "$XCODE_PROJECT" --scheme "$XCODE_SCHEME"
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        submit_to_app_store: false
