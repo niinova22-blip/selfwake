@@ -183,9 +183,9 @@ Selfwake/
     BreathSoundPlayer.swift         — Adım 2'nin isteğe bağlı sesi, varsayılan kapalı
   BlindTest/
     BlindWaitingView.swift          — niyet protokolü yerine boş bekleme
-  MorningTest/
-    ReactionTestView.swift          — 30 sn PVT-lite
-    MorningSummaryView.swift
+  MorningTest/                      — oturum/karşılaştırma mantığı SelfwakeCore'da (bkz. yukarı)
+    ReactionTestView.swift          — 30 sn PVT-lite, ReactionTestSession'ı sarar
+    MorningSummaryView.swift        — MorningSummary.reactionTimeDeltaMs'i okur
   Progress/
     StatsView.swift
     DriftChartView.swift            — Swift Charts
@@ -476,12 +476,13 @@ topluluk kaynaklarıyla doğrulandı, Bölüm 2 güncellendi) ve Gece Ritüeli'n
 state machine çekirdeği (RitualState, RitualCoordinator, RitualCompletion)
 koda döküldü, hepsi `SelfwakeCore` paketinde. Bu sırada `Night` modeline
 eksik olan `firstActionWord` alanı eklendi (Bölüm 3 güncel). Gece
-Ritüeli'nin SwiftUI View'ları (`TargetTimeConfirmView` vb.) henüz
-yazılmadı — Xcode/SwiftUI önizlemesi olmadan tasarım kalitesi
-doğrulanamayacağı için bilinçli olarak ertelendi. Hiçbir test bu
-makinede çalıştırılmadı (Swift toolchain yok); ilk doğrulama paket bir
-Xcode projesine bağlanıp Codemagic'te derlendiğinde yapılacak. Sıradaki:
-Gece Ritüeli View'ları ya da **Sabah akışı**.
+Ritüeli'nin ve Sabah akışının (`ReactionTestSession`, `MorningSummary`)
+SwiftUI View'ları henüz yazılmadı — Xcode/SwiftUI önizlemesi olmadan
+tasarım kalitesi doğrulanamayacağı için bilinçli olarak ertelendi.
+Hiçbir test bu makinede çalıştırılmadı (Swift toolchain yok); ilk
+doğrulama paket bir Xcode projesine bağlanıp Codemagic'te derlendiğinde
+yapılacak. Sıradaki: **Kör test** (SelfwakeCore'da küçük bir mantık) ya
+da View'lara geçiş.
 
 Bu belge **tek bir mimari onayı** için yazıldı; gerçek implementasyon
 planı burada değil. `writing-plans` becerisinin "Scope Check" kuralı
