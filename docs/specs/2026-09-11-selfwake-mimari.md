@@ -45,13 +45,19 @@ olarak Task 0'da netleştirilmeli; aşağıdaki sayılar/isimler taslak,
 Apple'ın güncel AlarmKit/Foundation Models dokümantasyonuyla teyit
 edilmeden koda geçilmeyecek:
 
-1. **AlarmKit eşzamanlı alarm limiti** — sistemin uygulama başına izin
-   verdiği zamanlanmış alarm sayısı sınırlı. Güvenlik ağı + olası
-   "erken uyandıysan iptal" senaryosu bu sınırın içinde kalmalı.
-2. **AlarmKit yetkilendirme akışı** — `NSAlarmKitUsageDescription`
-   Info.plist anahtarı ve `AlarmManager` yetki isteği tam akışı;
-   kullanıcı reddederse uygulama yalnızca bildirim tabanlı (daha zayıf)
-   bir yedek moda düşmeli.
+1. **AlarmKit eşzamanlı alarm limiti** — **kısmen araştırıldı (11 Eylül
+   2026, topluluk kaynakları):** resmi bir sayı bulunamadı. Selfwake zaten
+   uygulama başına yalnızca **tek** aktif alarm kuruyor (o geceki güvenlik
+   ağı), bu yüzden pratikte risk düşük; yine de Codemagic'te ilk gerçek
+   derlemede Apple'ın resmi dokümantasyonuyla teyit edilecek.
+2. **AlarmKit yetkilendirme akışı** — **doğrulandı:**
+   `NSAlarmKitUsageDescription` Info.plist anahtarı gerekiyor,
+   `AlarmManager.shared.authorizationState` (`.notDetermined/.authorized/
+   .denied`) ve `AlarmManager.shared.requestAuthorization()` ile akış
+   `AlarmPermissionManager.swift`'te kodlandı (Temel'den sonraki
+   AlarmEngine görevi). Kullanıcı reddederse yedek moda geçiş kararı
+   henüz UI katmanında yazılmadı — Gece Ritüeli alt sisteminde ele
+   alınacak.
 3. **Foundation Models kullanılabilirlik kontrolü** —
    `SystemLanguageModel.default.availability` dönen durumları (cihaz
    uygun değil / Apple Intelligence kapalı / model hazır değil) üç
@@ -66,6 +72,13 @@ edilmeden koda geçilmeyecek:
    canlı kalabilmesi; sistem `Activity` süresini kısıtlayabilir, gerekirse
    periyodik yenileme (`ActivityKit` push olmadan, yerel zamanlayıcıyla)
    tasarlanmalı.
+6. **AlarmKit ses seviyesi kontrolü** — `StreakTier.alarmVolumeLevel`
+   (Bölüm 4.4) alarmın kademeli kısılmasını varsayıyor, ama
+   `AlarmScheduler.swift`'te bu değer şu an **uygulanmıyor** — AlarmKit'in
+   sesi programatik ayarlayan bir API'si topluluk kaynaklarında
+   görülmedi. Codemagic'te ilk derlemede Apple dokümantasyonuyla teyit
+   edilecek; bulunamazsa yedek: `AlarmPresentation`'ın kendi ayarları ya
+   da sistemin genel ses seviyesine bırakma.
 
 ---
 
