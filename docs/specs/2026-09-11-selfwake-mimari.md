@@ -615,6 +615,66 @@ alt sistemleri tam olarak kodlandı:
 Hâlâ hiçbir test bu makinede çalıştırılmadı; hâlâ ilk gerçek doğrulama
 Codemagic'i bekliyor.
 
+**Güncelleme (12 Eylül 2026):** Kullanıcı "tüm eksikleri tamamla, sonra
+Codemagic'ten derle" dedi. Kalan alt sistemlerin tamamı MVP düzeyinde
+kodlandı (14 alt sistemin hepsi artık en az bir kez yazıldı):
+
+- **Tema sistemi** — `ThemeID` (SelfwakeCore, 5 tema) + `Theme`/
+  `ThemeManager` (app hedefi, renk çözümü). `MotionPreference`,
+  `Haptics` eklendi.
+- **Abonelik** — `SubscriptionTier`/`PlusGate` (SelfwakeCore, saf mantık,
+  test edildi) + `StoreKitManager` (StoreKit 2) + `PaywallView`. **Ürün
+  kimlikleri (`com.selfwake.app.plus.monthly/yearly`) App Store
+  Connect'te henüz yok** — kod bunu bekliyor, çökmüyor ama satın alma
+  boş liste gösterir.
+- **Ayarlar** — `SettingsView`: tema, hatırlatıcı, veri kaynakları
+  (Sağlık/Takvim/Watch/Live Activity aç-kapat), kör test (Plus gated),
+  abonelik yönetimi, "Nasıl çalışır", tüm veriyi kalıcı silme.
+- **HealthKit** — `HealthKitReader` (uyku süresi okuma).
+- **Takvim** — `EventKitReader` + `NextDayFirstEventResolver`.
+- **Live Activity** — `NightActivityAttributes` (SelfwakeCore) +
+  `LiveActivityController` + widget extension'daki
+  `NightLiveActivityWidget`; ritüel bitince başlıyor, sabah testi
+  bitince kapanıyor.
+- **Siri kısayolları** — `StartRitualIntent`/`OpenTodayIntent` +
+  `SelfwakeShortcuts`. **Sınırlama:** merkezi bir `AppRouter` henüz yok,
+  bu yüzden intent şu an yalnızca uygulamayı öne getiriyor, doğrudan
+  ritüele atlamıyor.
+- **Watch companion** — `WatchAlarmRelay` (SelfwakeCore,
+  `WCSessionDelegate`, iki platformda da kullanılıyor) + gerçek
+  `WatchTodayView`. **Sınırlama:** alarm gerçekten çaldığında
+  `sendVibrationCommand()`'ı tetikleyen bağlantı eksik — AlarmKit'in
+  "alarm sunuluyor" olayını dinleme API'si doğrulanmadan yazılamadı.
+- **Widgets** — gerçek `UserSettings`/hedef saat/seri App Group üzerinden
+  okunuyor (yer tutucu veri değil).
+- **Intelligence** — 7 üreticinin hepsi yazıldı (`IntentPhraseGenerator`,
+  `MorningCommentGenerator`, `WeeklyPatternSummarizer`,
+  `JournalThemeExtractor`, `AdaptiveTargetTimeAdvisor`,
+  `EveningRiskWarningGenerator`, `ToneAdapter`) + `RuleBasedFallbacks`
+  (test edildi) + `IntelligenceAvailability` (`#if canImport(FoundationModels)`
+  ile korumalı — framework yoksa ya da API farklıysa sessizce kural
+  tabanlı moda düşer).
+- **İlerleme ekranları** — `StatsView`, `DriftChartView` (Swift Charts),
+  `BlindTestComparisonView`, `PatternInsightView` — hepsi Plus-gated,
+  kilit kartına dokununca `PaywallView` açılıyor.
+- **Kör Test akışı** — `BlindWaitingView` gerçek ekran oldu.
+- **Sabah Özeti** — `MorningSummaryView` artık taslak değil, gerçek veriyle çalışıyor.
+- **Bugün ekranı** — tüm parçaları birbirine bağlıyor: ritüel/kör test
+  kararı (`BlindTestScheduler`), tamamlanan geceyi kalıcı kaydetme,
+  alarm kurma (`AlarmKitScheduler`), ilerleme/ayarlara gezinme, elle
+  sabah testi tetikleme (gerçek "ertesi gün" akışı olmadığı için
+  TestFlight'ta test edebilmek adına).
+
+**Bilinçli olarak yapılmayanlar:** Tam yerelleştirme (String Catalog) —
+tüm metin hâlâ Türkçe sabit string; İngilizce çeviri ayrı bir geçiş
+gerektiriyor ve derlemeyi bloklamıyor. Abonelik ürünleri App Store
+Connect'te oluşturulmadı. AppRouter/merkezi navigasyon yok — her View
+kendi `@State`'iyle yönetiyor, bu yüzden Siri kısayolları ve bildirim
+dokunuşları henüz doğrudan ritüele atlamıyor.
+
+Hâlâ hiçbir test bu makinede çalıştırılmadı. Sıradaki adım artık kod
+değil: Codemagic'te sertifika/profil kurulumu ve ilk gerçek derleme.
+
 Bu belge **tek bir mimari onayı** için yazıldı; gerçek implementasyon
 planı burada değil. `writing-plans` becerisinin "Scope Check" kuralı
 gereği, aşağıdaki alt sistemler **ayrı ayrı** bite-sized TDD planlarına

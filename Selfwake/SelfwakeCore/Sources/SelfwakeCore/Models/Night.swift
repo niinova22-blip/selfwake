@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 @Model
-public final class Night {
+public final class Night: Identifiable {
     public var id: UUID
     public var date: Date
     public var targetTime: Date

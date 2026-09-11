@@ -8,9 +8,11 @@ import SelfwakeCore
 struct RitualFlowView: View {
     @State private var coordinator: RitualCoordinator
     @State private var firstActionInput = ""
+    let onComplete: (Night) -> Void
 
-    init(targetTime: Date) {
+    init(targetTime: Date, onComplete: @escaping (Night) -> Void) {
         _coordinator = State(initialValue: RitualCoordinator(targetTime: targetTime))
+        self.onComplete = onComplete
     }
 
     var body: some View {
@@ -29,6 +31,12 @@ struct RitualFlowView: View {
             case .fadeOut:
                 // Bölüm 4.3: sözü olmayan bir bitiş — buton, metin, iddia yok.
                 Color.black.ignoresSafeArea()
+                    .onAppear {
+                        LiveActivityController.start(targetTime: coordinator.targetTime)
+                        if let night = RitualCompletion.makeNightDraft(date: .now, coordinator: coordinator) {
+                            onComplete(night)
+                        }
+                    }
             }
         }
         .preferredColorScheme(.dark)
@@ -79,5 +87,5 @@ struct RitualFlowView: View {
 }
 
 #Preview {
-    RitualFlowView(targetTime: .now)
+    RitualFlowView(targetTime: .now, onComplete: { _ in })
 }
