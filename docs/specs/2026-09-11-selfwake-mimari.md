@@ -181,15 +181,15 @@ Selfwake/
     IntentStep3View.swift           — tek kelime, RitualCoordinator.setFirstActionWord çağırır
     RitualFadeOutView.swift         — Bölüm 4.3'teki kararma ekranı
     BreathSoundPlayer.swift         — Adım 2'nin isteğe bağlı sesi, varsayılan kapalı
-  BlindTest/
+  BlindTest/                        — atama mantığı (BlindTestScheduler) SelfwakeCore'da
     BlindWaitingView.swift          — niyet protokolü yerine boş bekleme
   MorningTest/                      — oturum/karşılaştırma mantığı SelfwakeCore'da (bkz. yukarı)
     ReactionTestView.swift          — 30 sn PVT-lite, ReactionTestSession'ı sarar
     MorningSummaryView.swift        — MorningSummary.reactionTimeDeltaMs'i okur
-  Progress/
-    StatsView.swift
-    DriftChartView.swift            — Swift Charts
-    BlindTestComparisonView.swift
+  Progress/                         — ProgressStats + BlindTestComparison SelfwakeCore'da
+    StatsView.swift                 — ProgressStats.successRate/hasSilentWeekBadge'i okur
+    DriftChartView.swift            — Swift Charts, ProgressStats.driftSeries'i çizer
+    BlindTestComparisonView.swift   — BlindTestComparison.compare sonucunu gösterir, gizlemez
     PatternInsightView.swift        — AI/kural tabanlı haftalık özet
   Widgets/
     SelfwakeWidgetBundle.swift
@@ -476,13 +476,16 @@ topluluk kaynaklarıyla doğrulandı, Bölüm 2 güncellendi) ve Gece Ritüeli'n
 state machine çekirdeği (RitualState, RitualCoordinator, RitualCompletion)
 koda döküldü, hepsi `SelfwakeCore` paketinde. Bu sırada `Night` modeline
 eksik olan `firstActionWord` alanı eklendi (Bölüm 3 güncel). Gece
-Ritüeli'nin ve Sabah akışının (`ReactionTestSession`, `MorningSummary`)
-SwiftUI View'ları henüz yazılmadı — Xcode/SwiftUI önizlemesi olmadan
-tasarım kalitesi doğrulanamayacağı için bilinçli olarak ertelendi.
-Hiçbir test bu makinede çalıştırılmadı (Swift toolchain yok); ilk
-doğrulama paket bir Xcode projesine bağlanıp Codemagic'te derlendiğinde
-yapılacak. Sıradaki: **Kör test** (SelfwakeCore'da küçük bir mantık) ya
-da View'lara geçiş.
+Ritüeli, Sabah akışı, Kör Test (`BlindTestScheduler`) ve İlerleme
+(`ProgressStats`, `BlindTestComparison`) alt sistemlerinin **saf mantığı**
+tamam; hiçbirinin SwiftUI View'ı henüz yazılmadı — Xcode/SwiftUI
+önizlemesi olmadan tasarım kalitesi doğrulanamayacağı için bilinçli
+olarak ertelendi. Hiçbir test bu makinede çalıştırılmadı (Swift
+toolchain yok); ilk doğrulama paket bir Xcode projesine bağlanıp
+Codemagic'te derlendiğinde yapılacak. Kalan alt sistemler (Widgets, Live
+Activity, Intelligence, HealthKit, Takvim, Siri, Watch, Abonelik,
+Onboarding/Ayarlar/Tema) framework-ağırlıklı; bunlara geçmeden önce bir
+Codemagic doğrulama turu öneriliyor.
 
 Bu belge **tek bir mimari onayı** için yazıldı; gerçek implementasyon
 planı burada değil. `writing-plans` becerisinin "Scope Check" kuralı
