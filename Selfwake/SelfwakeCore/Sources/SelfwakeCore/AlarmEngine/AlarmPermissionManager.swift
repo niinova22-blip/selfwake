@@ -1,3 +1,4 @@
+#if canImport(AlarmKit)
 import Foundation
 import AlarmKit
 
@@ -6,6 +7,8 @@ import AlarmKit
 /// diye. AlarmKit'in tam durum adları Apple dokümantasyonuyla teyit
 /// edilene kadar bu üç durum WWDC25/topluluk örnekleriyle doğrulandı
 /// (bkz. spec Bölüm 2 madde 2).
+/// AlarmKit watchOS'ta yok; SelfwakeWatchApp bunu kullanmadığı için
+/// `canImport` ile watch derlemesinden tamamen çıkarılıyor.
 public enum AlarmPermissionState {
     case notDetermined
     case authorized
@@ -39,3 +42,4 @@ public enum AlarmPermissionManager {
         }
     }
 }
+#endif
