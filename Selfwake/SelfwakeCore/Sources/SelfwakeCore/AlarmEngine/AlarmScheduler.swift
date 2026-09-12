@@ -31,7 +31,7 @@ public struct AlarmKitScheduler: AlarmScheduling {
             presentation: presentation,
             tintColor: .accentColor
         )
-        let configuration = AlarmConfiguration(
+        let configuration = AlarmManager.AlarmConfiguration<SelfwakeAlarmMetadata>.alarm(
             schedule: .fixed(fireDate),
             attributes: attributes
         )
@@ -42,7 +42,7 @@ public struct AlarmKitScheduler: AlarmScheduling {
     }
 
     public func cancel(id: UUID) async throws {
-        try await AlarmManager.shared.cancel(id: id)
+        try AlarmManager.shared.cancel(id: id)
     }
 }
 #endif

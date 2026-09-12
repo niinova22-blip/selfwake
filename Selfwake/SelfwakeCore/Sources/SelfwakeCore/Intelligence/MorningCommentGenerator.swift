@@ -22,10 +22,13 @@ public struct MorningCommentGenerator: SentenceGenerating {
             let session = LanguageModelSession(
                 instructions: "Gece sapması, tepki süresi ve yatış saatini birlikte okuyup tek cümlelik bir gözlem yaz."
             )
+            let deviationText: String = deviationMinutes.map(String.init) ?? "yok"
+            let reactionDeltaText: String = reactionDeltaMs.map(String.init) ?? "yok"
+            let bedTimeSummary: String = bedTimeText ?? "bilinmiyor"
             let prompt = """
-            Sapma (dakika): \(deviationMinutes.map(String.init) ?? "yok")
-            Tepki süresi farkı (ms): \(reactionDeltaMs.map(String.init) ?? "yok")
-            Yatış saati: \(bedTimeText ?? "bilinmiyor")
+            Sapma (dakika): \(deviationText)
+            Tepki süresi farkı (ms): \(reactionDeltaText)
+            Yatış saati: \(bedTimeSummary)
             """
             let response = try await session.respond(to: prompt)
             return response.content
