@@ -82,12 +82,12 @@ targets:
         CODE_SIGN_ENTITLEMENTS: SelfwakeWatchApp/SelfwakeWatchApp.entitlements
         SWIFT_VERSION: "6.0"
         SKIP_INSTALL: true
-        WKCompanionAppBundleIdentifier: com.selfwake.app
-        WKApplication: true
     info:
       path: SelfwakeWatchApp/Info.plist
       properties:
         CFBundleDisplayName: Selfwake
+        WKApplication: true
+        WKCompanionAppBundleIdentifier: com.selfwake.app
 
 schemes:
   Selfwake:
