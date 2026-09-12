@@ -42,6 +42,7 @@ targets:
         NSAlarmKitUsageDescription: "Selfwake, güvenlik ağını hedef saatte çalabilmek için alarm izni ister. Alarm yalnızca sen erken uyanmazsan çalar."
         NSHealthShareUsageDescription: "Selfwake, isteğe bağlı olarak uyku ve nabız verini okuyup ölçümlerini zenginleştirir. Veri yalnızca cihazında kalır."
         NSHealthUpdateUsageDescription: "Selfwake, uyku verisini HealthKit'e yazmaz; bu izin sistem tarafından istenen ancak kullanılmayan bir izindir."
+        NSCalendarsFullAccessUsageDescription: "Selfwake, ertesi gün ilk etkinliğini görüp sabah öneri olarak gösterebilmek için takvimini okur."
         NSUserTrackingUsageDescription: "Selfwake reklam göstermez; bu izin kullanılmaz."
         NSSupportsLiveActivities: true
         UISupportedInterfaceOrientations:
@@ -66,6 +67,9 @@ targets:
       path: SelfwakeWidgetExtension/Info.plist
       properties:
         CFBundleDisplayName: Selfwake Widget
+        NSHealthShareUsageDescription: "Selfwake, isteğe bağlı olarak uyku ve nabız verini okuyup ölçümlerini zenginleştirir. Veri yalnızca cihazında kalır."
+        NSHealthUpdateUsageDescription: "Selfwake, uyku verisini HealthKit'e yazmaz; bu izin sistem tarafından istenen ancak kullanılmayan bir izindir."
+        NSCalendarsFullAccessUsageDescription: "Selfwake, ertesi gün ilk etkinliğini görüp sabah öneri olarak gösterebilmek için takvimini okur."
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
 
@@ -91,6 +95,9 @@ targets:
         CFBundleDisplayName: Selfwake
         WKApplication: true
         WKCompanionAppBundleIdentifier: com.selfwake.app
+        NSHealthShareUsageDescription: "Selfwake, isteğe bağlı olarak uyku ve nabız verini okuyup ölçümlerini zenginleştirir. Veri yalnızca cihazında kalır."
+        NSHealthUpdateUsageDescription: "Selfwake, uyku verisini HealthKit'e yazmaz; bu izin sistem tarafından istenen ancak kullanılmayan bir izindir."
+        NSCalendarsFullAccessUsageDescription: "Selfwake, ertesi gün ilk etkinliğini görüp sabah öneri olarak gösterebilmek için takvimini okur."
 
 schemes:
   Selfwake:
