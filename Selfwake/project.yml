@@ -41,6 +41,7 @@ targets:
         UILaunchScreen: {}
         NSAlarmKitUsageDescription: "Selfwake, güvenlik ağını hedef saatte çalabilmek için alarm izni ister. Alarm yalnızca sen erken uyanmazsan çalar."
         NSHealthShareUsageDescription: "Selfwake, isteğe bağlı olarak uyku ve nabız verini okuyup ölçümlerini zenginleştirir. Veri yalnızca cihazında kalır."
+        NSHealthUpdateUsageDescription: "Selfwake, uyku verisini HealthKit'e yazmaz; bu izin sistem tarafından istenen ancak kullanılmayan bir izindir."
         NSUserTrackingUsageDescription: "Selfwake reklam göstermez; bu izin kullanılmaz."
         NSSupportsLiveActivities: true
         UISupportedInterfaceOrientations:
