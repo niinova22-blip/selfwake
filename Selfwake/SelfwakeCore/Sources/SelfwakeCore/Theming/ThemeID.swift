@@ -3,7 +3,7 @@ import Foundation
 /// Spec Bölüm 6 — bes tema. Renklerin kendisi (Color) app hedefindeki
 /// `Theme.swift`'te; burada yalnızca kimlik ve görüntü adı, test
 /// edilebilir kalsın diye.
-public enum ThemeID: String, CaseIterable, Codable {
+public enum ThemeID: String, CaseIterable, Codable, Sendable {
     case nightBlue, charcoal, dawn, forest, daylight
 
     public var displayName: String {
