@@ -1,3 +1,4 @@
+#if canImport(AlarmKit)
 import Foundation
 import AlarmKit
 
@@ -44,3 +45,4 @@ public struct AlarmKitScheduler: AlarmScheduling {
         try await AlarmManager.shared.cancel(id: id)
     }
 }
+#endif
