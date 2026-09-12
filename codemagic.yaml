@@ -40,6 +40,7 @@ workflows:
     name: Selfwake iOS · TestFlight
     instance_type: mac_mini_m2
     max_build_duration: 60
+    working_directory: Selfwake
 
     integrations:
       app_store_connect: Codemagic
@@ -102,7 +103,7 @@ workflows:
           xcode-project build-ipa --project "$XCODE_PROJECT" --scheme "$XCODE_SCHEME"
 
     artifacts:
-      - build/ios/ipa/*.ipa
+      - Selfwake/build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
 
     publishing:
