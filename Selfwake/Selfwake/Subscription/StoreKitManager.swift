@@ -18,7 +18,7 @@ final class StoreKitManager {
 
     private(set) var tier: SubscriptionTier = .free
     private(set) var products: [Product] = []
-    private var updatesTask: Task<Void, Never>?
+    private nonisolated(unsafe) var updatesTask: Task<Void, Never>?
 
     init() {
         updatesTask = Task { [weak self] in
