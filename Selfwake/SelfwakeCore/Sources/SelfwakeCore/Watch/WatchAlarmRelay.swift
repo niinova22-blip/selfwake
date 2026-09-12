@@ -6,7 +6,7 @@ import WatchConnectivity
 /// yalnızca bir titreşim komutu gönderiliyor. İki tarafta da (telefon
 /// gönderir, Watch alır) aynı sınıf kullanılıyor — `WCSession` her iki
 /// platformda da var, yalnızca birkaç delegate metodu iOS'a özel.
-public final class WatchAlarmRelay: NSObject, WCSessionDelegate {
+public final class WatchAlarmRelay: NSObject, WCSessionDelegate, @unchecked Sendable {
     public static let shared = WatchAlarmRelay()
     public var onVibrationCommand: (() -> Void)?
 
