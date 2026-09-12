@@ -10,6 +10,7 @@ import SelfwakeCore
 /// (spec Bölüm 1.1'deki "Yapılmayanlar" listesi). Ürünler kurulana kadar
 /// `Product.products(for:)` boş dizi döner, `tier` hep `.free` kalır —
 /// uygulama çökmez, yalnızca satın alma ekranı boş görünür.
+@MainActor
 @Observable
 final class StoreKitManager {
     static let monthlyID = "com.selfwake.app.plus.monthly"
