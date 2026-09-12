@@ -130,7 +130,7 @@ struct TodayView: View {
             targetTime: night.targetTime, offsetMinutes: tier.alarmOffsetMinutes
         )
         Task {
-            try? await AlarmKitScheduler().schedule(id: UUID(), fireDate: fireDate, volumeLevel: tier.alarmVolumeLevel)
+            try? await AlarmSchedulerFactory.make().schedule(id: UUID(), fireDate: fireDate, volumeLevel: tier.alarmVolumeLevel)
         }
     }
 

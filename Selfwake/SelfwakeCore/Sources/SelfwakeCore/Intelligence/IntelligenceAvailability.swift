@@ -14,16 +14,17 @@ public enum IntelligenceAvailability {
 
     public static func current() -> IntelligenceAvailability {
         #if canImport(FoundationModels)
-        switch SystemLanguageModel.default.availability {
-        case .available:
-            return .available
-        case .unavailable(let reason):
-            return .unavailable(reason: String(describing: reason))
-        @unknown default:
-            return .unavailable(reason: "bilinmeyen durum")
+        if #available(iOS 26.0, *) {
+            switch SystemLanguageModel.default.availability {
+            case .available:
+                return .available
+            case .unavailable(let reason):
+                return .unavailable(reason: String(describing: reason))
+            @unknown default:
+                return .unavailable(reason: "bilinmeyen durum")
+            }
         }
-        #else
-        return .unavailable(reason: "Foundation Models bu platformda yok")
         #endif
+        return .unavailable(reason: "Foundation Models bu platformda yok")
     }
 }

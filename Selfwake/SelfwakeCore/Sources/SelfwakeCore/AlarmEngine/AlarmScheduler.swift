@@ -1,12 +1,8 @@
-#if canImport(AlarmKit)
 import Foundation
+import UserNotifications
+#if canImport(AlarmKit)
 import AlarmKit
-
-/// AlarmKit boş metadata gerektiriyor (spec araştırmasında görülen örnek:
-/// `EmptyMetadata`). `nonisolated` işareti Apple'ın kendi örneklerinde de var.
-public struct SelfwakeAlarmMetadata: AlarmMetadata {
-    public init() {}
-}
+#endif
 
 /// Uygulamanın geri kalanının bağlandığı arayüz — gerçek AlarmKit çağrıları
 /// yalnızca `AlarmKitScheduler`'da. Bu ayrım sayesinde AlarmKit'in kesin isim
@@ -17,6 +13,29 @@ public protocol AlarmScheduling {
     func cancel(id: UUID) async throws
 }
 
+/// iOS sürümüne göre doğru uygulamayı seçer: AlarmKit (iOS 26+, sessiz modu
+/// delebilir) ya da yerel bildirim (daha eski cihazlar — iPhone 11/iOS 18
+/// gibi AlarmKit'in çalışamadığı donanımlar için zorunlu yedek).
+public enum AlarmSchedulerFactory {
+    public static func make() -> AlarmScheduling {
+        #if canImport(AlarmKit)
+        if #available(iOS 26.0, *) {
+            return AlarmKitScheduler()
+        }
+        #endif
+        return NotificationAlarmScheduler()
+    }
+}
+
+#if canImport(AlarmKit)
+/// AlarmKit boş metadata gerektiriyor (spec araştırmasında görülen örnek:
+/// `EmptyMetadata`). `nonisolated` işareti Apple'ın kendi örneklerinde de var.
+@available(iOS 26.0, *)
+public struct SelfwakeAlarmMetadata: AlarmMetadata {
+    public init() {}
+}
+
+@available(iOS 26.0, *)
 public struct AlarmKitScheduler: AlarmScheduling {
     public init() {}
 
@@ -46,3 +65,30 @@ public struct AlarmKitScheduler: AlarmScheduling {
     }
 }
 #endif
+
+/// AlarmKit'in olmadığı (iOS < 26) cihazlar için yedek: sessiz modu delemez,
+/// ama zamanlı, sesli bir yerel bildirimle aynı işlevi büyük ölçüde görür.
+/// Kullanıcı iPhone'unu iOS 26'ya yükseltemediğinde (ör. iPhone 11) tek
+/// seçenek budur.
+public struct NotificationAlarmScheduler: AlarmScheduling {
+    public init() {}
+
+    public func schedule(id: UUID, fireDate: Date, volumeLevel: Double) async throws {
+        let center = UNUserNotificationCenter.current()
+
+        let content = UNMutableNotificationContent()
+        content.title = "Selfwake"
+        content.body = "Güvenlik ağı çalıyor — uyanma vakti."
+        content.sound = .defaultCritical
+        content.interruptionLevel = .timeSensitive
+
+        let interval = max(fireDate.timeIntervalSinceNow, 1)
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: interval, repeats: false)
+        let request = UNNotificationRequest(identifier: id.uuidString, content: content, trigger: trigger)
+        try await center.add(request)
+    }
+
+    public func cancel(id: UUID) async throws {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id.uuidString])
+    }
+}
