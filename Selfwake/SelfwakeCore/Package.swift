@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "SelfwakeCore",
-    platforms: [.iOS("26.0")],
+    platforms: [.iOS("18.0")],
     products: [
         .library(name: "SelfwakeCore", targets: ["SelfwakeCore"])
     ],
