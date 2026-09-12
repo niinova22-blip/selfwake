@@ -4,7 +4,7 @@ import SelfwakeCore
 /// `ThemeID`'nin (SelfwakeCore) rengine dökülmüş hâli. Ritüel ekranları
 /// (`NightRitual/*`) bunu **okumaz** — sabit koyu paleti kullanırlar
 /// (spec Bölüm 4.1).
-struct Theme {
+struct Theme: Sendable {
     let id: ThemeID
     let background: LinearGradient
     let accent: Color

@@ -6,9 +6,9 @@ import AppIntents
 /// gelecekte paylaşılan bir navigasyon durumu gerekecek (spec Bölüm 9,
 /// "Onboarding + Ayarlar" sonrası bir iyileştirme olarak not düşüldü).
 struct StartRitualIntent: AppIntent {
-    static var title: LocalizedStringResource = "Gece ritüelini başlat"
-    static var description = IntentDescription("Selfwake'te gece ritüelini başlatır.")
-    static var openAppWhenRun = true
+    static let title: LocalizedStringResource = "Gece ritüelini başlat"
+    static let description = IntentDescription("Selfwake'te gece ritüelini başlatır.")
+    static let openAppWhenRun = true
 
     func perform() async throws -> some IntentResult {
         .result()
@@ -16,8 +16,8 @@ struct StartRitualIntent: AppIntent {
 }
 
 struct OpenTodayIntent: AppIntent {
-    static var title: LocalizedStringResource = "Selfwake'i aç"
-    static var openAppWhenRun = true
+    static let title: LocalizedStringResource = "Selfwake'i aç"
+    static let openAppWhenRun = true
 
     func perform() async throws -> some IntentResult {
         .result()
