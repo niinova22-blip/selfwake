@@ -18,25 +18,26 @@ public struct MorningCommentGenerator: SentenceGenerating {
         let fallback = RuleBasedFallbacks.morningComment(deviationMinutes: deviationMinutes)
         guard case .available = IntelligenceAvailability.current() else { return fallback }
         #if canImport(FoundationModels)
-        do {
-            let session = LanguageModelSession(
-                instructions: "Gece sapması, tepki süresi ve yatış saatini birlikte okuyup tek cümlelik bir gözlem yaz."
-            )
-            let deviationText: String = deviationMinutes.map { String($0) } ?? "yok"
-            let reactionDeltaText: String = reactionDeltaMs.map { String($0) } ?? "yok"
-            let bedTimeSummary: String = bedTimeText ?? "bilinmiyor"
-            let prompt = """
-            Sapma (dakika): \(deviationText)
-            Tepki süresi farkı (ms): \(reactionDeltaText)
-            Yatış saati: \(bedTimeSummary)
-            """
-            let response = try await session.respond(to: prompt)
-            return response.content
-        } catch {
-            return fallback
+        if #available(iOS 26.0, *) {
+            do {
+                let session = LanguageModelSession(
+                    instructions: "Gece sapması, tepki süresi ve yatış saatini birlikte okuyup tek cümlelik bir gözlem yaz."
+                )
+                let deviationText: String = deviationMinutes.map { String($0) } ?? "yok"
+                let reactionDeltaText: String = reactionDeltaMs.map { String($0) } ?? "yok"
+                let bedTimeSummary: String = bedTimeText ?? "bilinmiyor"
+                let prompt = """
+                Sapma (dakika): \(deviationText)
+                Tepki süresi farkı (ms): \(reactionDeltaText)
+                Yatış saati: \(bedTimeSummary)
+                """
+                let response = try await session.respond(to: prompt)
+                return response.content
+            } catch {
+                return fallback
+            }
         }
-        #else
-        return fallback
         #endif
+        return fallback
     }
 }

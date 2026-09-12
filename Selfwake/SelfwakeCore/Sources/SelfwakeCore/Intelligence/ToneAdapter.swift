@@ -19,23 +19,24 @@ public struct ToneAdapter {
             return RuleBasedFallbacks.toneNeutral(base)
         }
         #if canImport(FoundationModels)
-        do {
-            let session = LanguageModelSession(
-                instructions: "Verilen cümleyi anlamını değiştirmeden, örnek notların diline (resmi/samimi) yaklaştır."
-            )
-            let prompt = """
-            Örnek notlar:
-            \(recentNotes.joined(separator: "\n"))
+        if #available(iOS 26.0, *) {
+            do {
+                let session = LanguageModelSession(
+                    instructions: "Verilen cümleyi anlamını değiştirmeden, örnek notların diline (resmi/samimi) yaklaştır."
+                )
+                let prompt = """
+                Örnek notlar:
+                \(recentNotes.joined(separator: "\n"))
 
-            Uyarlanacak cümle: \(base)
-            """
-            let response = try await session.respond(to: prompt)
-            return response.content
-        } catch {
-            return base
+                Uyarlanacak cümle: \(base)
+                """
+                let response = try await session.respond(to: prompt)
+                return response.content
+            } catch {
+                return base
+            }
         }
-        #else
-        return base
         #endif
+        return base
     }
 }
